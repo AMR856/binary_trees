@@ -28,7 +28,7 @@ int binary_tree_is_perfect(const binary_tree_t *tree)
 bool isPerfect(const binary_tree_t *root, int myDepth, int myLevel)
 {
 	if (root == NULL)
-		return (true);
+		return (false);
 	if ((*root).left == NULL && (*root).right == NULL)
 	{
 		return (myDepth == myLevel);
