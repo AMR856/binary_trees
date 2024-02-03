@@ -16,7 +16,7 @@ binary_tree_t *binary_tree_rotate_right(binary_tree_t *tree)
 	myTemp = (*tree).left;
 	(*tree).left = (*myTemp).right;
 	if ((*myTemp).right != NULL)
-		(*myTemp).right = tree;
+		(*myTemp).right->parent = tree;
 	(*myTemp).right = tree;
 	(*myTemp).parent = (*tree).parent;
 	(*tree).parent = myTemp;
