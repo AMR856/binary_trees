@@ -54,7 +54,7 @@ int binary_tree_is_bst(const binary_tree_t *tree);
 bst_t *bst_insert(bst_t **tree, int value);
 bst_t *array_to_bst(int *array, size_t size);
 bst_t *bst_search(const bst_t *tree, int value);
-
+bst_t *bst_remove(bst_t *root, int value);
 #endif /* _BINARY_TREES_H_ */
 
 /**
@@ -68,26 +68,34 @@ bst_t *bst_search(const bst_t *tree, int value);
 /**
  * main - Entry point
  *
- * Return: Always 0 (Success)
+ * Return: 0 on success, error code on failure
  */
 int main(void)
 {
-    binary_tree_t *root;
-    size_t nodes;
+    bst_t *tree;
+    int array[] = {
+        79, 47, 68, 87, 84, 91, 21, 32, 34, 2,
+        20, 22, 98, 1, 62, 95
+    };
+    size_t n = sizeof(array) / sizeof(array[0]);
 
-    root = binary_tree_node(NULL, 98);
-    root->left = binary_tree_node(root, 12);
-    root->right = binary_tree_node(root, 402);
-    binary_tree_insert_right(root->left, 54);
-    binary_tree_insert_right(root, 128);
-    binary_tree_print(root);
+    tree = array_to_bst(array, n);
+    if (!tree)
+        return (1);
+    binary_tree_print(tree);
 
-    nodes = binary_tree_nodes(root);
-    printf("Nodes in %d: %lu\n", root->n, nodes);
-    nodes = binary_tree_nodes(root->right);
-    printf("Nodes in %d: %lu\n", root->right->n, nodes);
-    nodes = binary_tree_nodes(root->left->right);
-    printf("Nodes in %d: %lu\n", root->left->right->n, nodes);
+    tree = bst_remove(tree, 79);
+    printf("Removed 79...\n");
+    binary_tree_print(tree);
+
+    tree = bst_remove(tree, 21);
+    printf("Removed 21...\n");
+    binary_tree_print(tree);
+
+    tree = bst_remove(tree, 68);
+    printf("Removed 68...\n");
+    binary_tree_print(tree);
+    binary_tree_delete(tree);
     return (0);
 }
 
@@ -330,4 +338,74 @@ size_t binary_tree_nodes(const binary_tree_t *tree)
         rCount = binary_tree_nodes((*tree).right) + rCount;
         return (lCount + rCount + checker);
     }
+}
+
+bst_t *FindMin(bst_t *);
+
+/**
+ * bst_remove - A function to remove a node in BST
+ * @root: A pointer to the current node
+ * @value: The value of the node to be deleted
+ *
+ * Return: A pointer to something
+*/
+
+bst_t *bst_remove(bst_t *root, int value)
+{
+	if (root == NULL)
+		return (NULL);
+	else if (value < (*root).n )
+		(*root).left = bst_remove((*root).left, value);
+	else if (value > (*root).n)
+		(*root).right = bst_remove((*root).right, value);
+	else
+	{
+		if ((*root).right == NULL && (*root).left == NULL)
+		{
+			free(root);
+			root = NULL;
+		}
+		else if ((*root).right == NULL)
+		{
+			bst_t *myTemp = root;
+			root = (*root).right;
+			free(myTemp);
+		}
+		else if ((*root).left == NULL)
+		{
+			bst_t *myTemp = root;
+			root = (*root).left;
+			free(myTemp);
+		}
+		else
+		{
+			bst_t *myTemp = FindMin((*root).right);
+			(*root).n = (*myTemp).n;
+			(*root).right = bst_remove((*root).right, (*myTemp).n);
+		}
+	}
+	return (root);
+}
+
+/**
+ * FindMin - A function to find the minimum node in the tree
+ * @root: A pointer to the current node
+ *
+ * Return: A pointer to the min node
+*/
+
+bst_t *FindMin(bst_t *root)
+{
+	while((*root).left != NULL)
+		root = (*root).left;
+	return (root);
+}
+
+void binary_tree_delete(binary_tree_t *tree)
+{
+	if (tree == NULL)
+		return;
+	binary_tree_delete((*tree).left);
+	binary_tree_delete((*tree).right);
+	free(tree);
 }
